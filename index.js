@@ -1,30 +1,58 @@
 const express = require('express');
-const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-require('dotenv').config();
-
 const app = express();
+const cors = require('cors');
+require('dotenv').config();
+const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectID;
+
 const port = process.env.PORT || 5000;
 
-// middleware call
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.3gqpg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+
+
+
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+//middleware
 app.use(cors());
 app.use(express.json());
 
+async function run() {
+  try {
+    await client.connect();
+    const database = client.db('iTimeco');
+    const productsCollection = database.collection('products');
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.3gqpg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-  const collection = client.db("test").collection("devices");
-  console.log('iTimeco DB connected');
-  // perform actions on the collection object
-  client.close();
-});
+    //add product
+    app.post('/addProduct', async (req, res) => {
+      const result = await productsCollection.insertOne(req.body);
+      res.json(result);
+    });
 
+    // get products
+    app.get('/getProduct', async (req, res) => {
+      const cursor = productsCollection.find({});
+      const products = await cursor.toArray();
+      res.send(products);
+    });
+
+
+
+  
+  } finally {
+    // await client.close();
+  }
+};
+
+run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('iTimeco Server is ON!!');
+  res.send('iTimeco Server is Running!');
 });
 
 app.listen(port, () => {
-console.log('Listening to Port', port);
+  console.log(`listening at ${port}`);
 });
