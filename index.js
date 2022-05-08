@@ -39,7 +39,14 @@ async function run() {
       res.send(products);
     });
 
-
+     //get single product
+     app.get('/inventory/:id', async (req, res) => {
+      const result = await productsCollection.find({ _id: ObjectId(req.params.id) }).toArray();
+      res.send(result);
+     });
+    
+    
+    
 
   
   } finally {
