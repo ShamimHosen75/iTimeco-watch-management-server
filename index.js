@@ -46,7 +46,20 @@ async function run() {
      });
     
     
-    
+    //  delivered Product
+     app.put('/deliveredProduct/:id', async (req, res) => {
+      const id = req.params.id;
+      const product = req.body;
+      const filter = { _id: ObjectId(id)};
+      productsCollection.updateOne(filter, {
+          $set: {
+            quantity: product.quantity,
+          },
+        })
+        .then(result => {
+          res.send(result);
+        });
+    });
 
   
   } finally {
