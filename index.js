@@ -45,6 +45,12 @@ async function run() {
       res.send(result);
      });
     
+     //get my product
+     app.get('/myProduct/:user', async (req, res) => {
+      const result = await productsCollection.find({ user: req.params.user }).toArray();
+      res.send(result);
+     });
+    
     
     //  delivered Product
      app.put('/deliveredProduct/:id', async (req, res) => {
@@ -61,6 +67,14 @@ async function run() {
         });
     });
 
+      // DELETE product
+      app.delete('/deleteProduct/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = {_id: ObjectId(id)}
+        const result = await productsCollection.deleteOne(query);
+        res.json(result);
+      });
+
   
   } finally {
     // await client.close();
@@ -70,7 +84,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-  res.send('iTimeco Server is Running!');
+  res.send('Server is Runing!');
 });
 
 app.listen(port, () => {
